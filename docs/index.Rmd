@@ -1,0 +1,52 @@
+---
+title: "final project"
+author: "Amanda Badai"
+date: "2024-12-06"
+output: html_document
+---
+
+## R Markdown
+
+
+load dataset, install tidyverse, and change all columns to factors or characters
+```{r echo=FALSE, message=FALSE, warning=FALSE} 
+library(tidyverse)
+library(readr)
+
+results_for_r <- read_csv("C:/Users/abada/OneDrive/Desktop/bridgebioinfo/results_for_r.csv")
+
+
+results_for_r$treatment <- as.factor(results_for_r$treatment)
+results_for_r$round <- as.factor(results_for_r$round)
+results_for_r$tag <- as.factor(results_for_r$tag)
+results_for_r$`time period` <- as.factor(results_for_r$`time period`)
+```
+
+## add a count column to represent the count of lesions per lesion status . Add another column to represent the count of lesions per treatment. Then add back that column to the dataset with the lesion status. divide the count column by lesion count column to get the proportion of lesion status per treatment level. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ thesis_data <- results_for_r %>% 
+group_by(round, experiment, `time period`, treatment, status) %>% 
+  summarise(count = n()) 
+
+ thesis_data2 <- results_for_r %>% 
+   group_by(round, experiment, `time period`, treatment) %>% 
+   summarise(count = n()) 
+ 
+thesis_data$countlesions <- c(13, 11, 13, 14, 13, 13, 13, 12, 12, 12, 14, 14, 16, 16, 16, 13, 13, 13, 12, 12, 12, 16, 16, 16, 16, 16, 16, 13, 13, 13, 12, 12, 12, 16, 16, 19, 19, 19, 12, 17, 14, 13, 15, 15, 21, 21, 21, 21, 17, 17, 17, 17, 15, 15, 16, 16, 16, 21, 21, 21, 18, 18, 18, 16, 16, 16, 16, 16, 16, 16, 16, 21, 21, 21, 18, 18, 18, 18, 18, 6, 11, 15, 11, 6, 6, 12, 12, 12, 12, 16, 16, 11, 11, 11, 6, 13, 13, 13, 16, 16, 11, 11, 11, 6, 13, 13, 16, 16, 12, 12, 12, 7, 12, 6, 14, 8, 8, 10, 10, 6, 6, 14, 14, 14, 8, 8, 10, 10, 6, 6, 14, 14, 14, 8, 8, 9, 9, 5, 5, 16, 16, 16)
+ 
+thesis_data$proportion <- thesis_data$count / thesis_data$countlesions
+ 
+colnames(thesis_data)[colnames(thesis_data) == "time period"] <- "time_period"
+```
+
+##Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+plot the proportions by the time period to show the type of lesions per month. for the time poins 0= initial treatent, 1= 1 month monitored, 2= 3 month monitored, 3= 6 month monitored
+```{r echo=TRUE}
+ thesis.plot <- ggplot(thesis_data, 
+                   aes(x = time_period, y = proportion, fill = status)) + 
+   geom_bar(stat = "identity", position = "dodge") + 
+   labs(x = "Time", y = "Proportion",
+        fill = "Status")
+thesis.plot
+```
